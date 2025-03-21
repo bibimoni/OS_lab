@@ -55,7 +55,6 @@ int main(int argc, char* argv[]) {
     printf("Shared memory Id: %d\n", shmid);
   }
 
-  
   //set buffer values to zero
   struct Info* shm = (struct Info *) shmat(shmid, 0, 0);
   if (shm == (struct Info *) -1) {
@@ -66,7 +65,6 @@ int main(int argc, char* argv[]) {
   memset(shm->ratings, 0, N * sizeof(shm->ratings[0]));
   memset(shm->cnt, 0, N * sizeof(shm->cnt[0]));
   
-
   goForking("movie-100k_1.txt");
   goForking("movie-100k_2.txt");
 
@@ -78,6 +76,10 @@ int main(int argc, char* argv[]) {
     fprintf(file, "%d %f\n", id, (float)shm->ratings[id] / shm->cnt[id]);
   }
   fclose(file);
+  if (shmdt(shm) == -1) {
+    perror("shmdt");
+    return 1;
+  }
   if (shmctl(shmid, IPC_RMID, NULL) == -1) {
     perror("shmctl");
     return 1;
